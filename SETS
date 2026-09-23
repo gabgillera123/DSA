@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX 10
+
+typedef bool Set[MAX]; 
+
+bool addElement(Set s, int item);
+bool removeElement(Set s, int item); //no need to pointer since array na sya
+
+void display(Set s);
+
+void setUnion(Set a, Set b, Set result);
+bool *setIntersection(Set a, Set b); //malloc
+bool *setDifference(Set a, Set b); //malloc
+
+int main(){
+    Set a;
+    
+    addElement(a, 5);
+}
+
+bool addElement(Set s, int item){
+    if(s[item] == 1){
+        return false;
+    }else{
+        s[item] = 1;
+        return true;
+    }
+}
+
+bool removeElement(Set s, int item){
+    if(s[item] == 1){
+        s[item] = 0;
+        return true;
+    }else{
+        return false;
+    }
+}
