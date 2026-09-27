@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef struct {
+    int *members;
+    int length;
+} Set;
+
+Set* init(); //initializes a Set
+bool isEmpty(Set *set); //checks if Set is empty
+void insert(Set *set, int value); //inserts a value into the Set
+void printSet(Set *set);
+Set *unionSets(Set *setA, Set *setB);
+
+int main(){
+    Set *mySetA = init();
+
+    if (isEmpty(mySetA)) {
+        printf("Set A is empty.\n");
+    }else {
+        printf("Set A is not empty.\n");
+    }
+
+    insert(mySetA, 5);
+    insert(mySetA, 10);
+    insert(mySetA, 5); // Attempt to insert a duplicate value
+    printSet(mySetA);
+
+    Set *mySetB = init();
+
+    if (isEmpty(mySetB)) {
+        printf("Set B is empty.\n");
+    }else {
+        printf("Set B is not empty.\n");
+    }
+
+    insert(mySetB, 6);
+    insert(mySetB, 9);
+    insert(mySetB, 4);
+    printSet(mySetB);
+
+    Set *mySetC = unionSets(mySetA, mySetB);
+    printf("Union of Set A and Set B is: ");
+    printSet(mySetC);
+}
+
+Set* init() {
+    Set *newSet = malloc(sizeof(Set)); //allocate memory
+    newSet->length = 0; //initialize length to 0
+    newSet->members = malloc(sizeof(int));
+    return newSet;
+}
+
+bool isEmpty(Set *set) {
+    return (set->length == 0);
+}
+
+void insert(Set *set, int value){
+    bool inSet = false; //check to see if elements is already in the set
+    for(int i = 0; i < set->length; i++){
+        if(set->members[i] == value){ //checking if value is the set
+            inSet = true;
+            break;
+        }
+    }
+    if(!inSet){ //if value is not in the set, add it
+        set->length++; //increment the length of the set
+        set->members = realloc(set->members, set->length * sizeof(int)); //resize the array to accommodate the new element
+        set->members[set->length - 1] = value; //add the new element to the end of the array
+    }
+}
+
+void printSet(Set *set){
+    for(int i = 0; i < set->length; ++i){
+        if (i == (set->length - 1)){ //if last print without comma
+            printf("%d \n", set->members[i]); 
+        }else{
+            printf("%d, ", set->members[i]);
+        }
+    }
+}
+
+Set *unionSets(Set *setA, Set *setB){
+    Set *new = init(); //create a new set 
+
+    for (int i = 0; i < setA->length; i++){
+        insert(new, setA->members[i]); //insert Set A first
+    }
+
+    for (int i = 0; i < setB->length; i++){
+        insert(new, setB->members[i]); //then insert Set B
+    }
+
+    for(int i = 0; i < new->length; ++i){ //IF i wanted to sort the set, bubble sort is da wey
+        for (int j = i + 1; j < new->length; ++j){
+            if(new->members[i] > new->members[j]){
+                int temp = new->members[i];
+                new->members[i] = new->members[j];
+                new->members[j] = temp;
+            }
+        }
+    }
+
+    return new;
+}
