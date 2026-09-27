@@ -12,6 +12,7 @@ bool isEmpty(Set *set); //checks if Set is empty
 void insert(Set *set, int value); //inserts a value into the Set
 void printSet(Set *set);
 Set *unionSets(Set *setA, Set *setB);
+Set *intersectionSets(Set *setA, Set *setB);
 
 int main(){
     Set *mySetA = init();
@@ -25,6 +26,8 @@ int main(){
     insert(mySetA, 5);
     insert(mySetA, 10);
     insert(mySetA, 5); // Attempt to insert a duplicate value
+    insert(mySetA, 6);
+    insert(mySetA, 4);
     printSet(mySetA);
 
     Set *mySetB = init();
@@ -38,11 +41,16 @@ int main(){
     insert(mySetB, 6);
     insert(mySetB, 9);
     insert(mySetB, 4);
+    insert(mySetB, 10);
     printSet(mySetB);
 
     Set *mySetC = unionSets(mySetA, mySetB);
     printf("Union of Set A and Set B is: ");
     printSet(mySetC);
+
+    Set *mySetD = intersectionSets(mySetA, mySetB);
+    printf("Intersection of Set A and Set B is: ");
+    printSet(mySetD);
 }
 
 Set* init() {
@@ -102,5 +110,28 @@ Set *unionSets(Set *setA, Set *setB){
         }
     }
 
+    return new;
+}
+
+Set *intersectionSets(Set *setA, Set *setB){
+    Set *new = init();
+
+    for(int i = 0; i < setA->length; i++){
+        for(int j = 0; j < setB->length; j++){
+            if(setA->members[i] == setB->members[j]){
+                insert(new, setA->members[i]);
+            }
+        }
+    }
+
+    for(int i = 0; i < new->length; i++){ //more buhhhble sortt
+        for(int j = i + 1; j < new->length; j++){
+            if(new->members[i] > new->members[j]){
+                int temp = new->members[i];
+                new->members[i] = new->members[j];
+                new->members[j] = temp;
+            }
+        }
+    }
     return new;
 }
