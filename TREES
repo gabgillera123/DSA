@@ -1,0 +1,149 @@
+#include <stdio.h>
+#define MAX 20
+
+typedef struct {
+    int Elem[MAX];
+    int lastNdx;            /* index of last element, -1 if empty */
+} ListHeap;
+
+/* ============================================================================
+   MASTER POOL (50 NUMBERS)
+   Includes duplicates, zero and negative numbers.
+   ============================================================================ */
+static const int MASTER_DATA[50] = {
+    /* 1 to 10  */  45, 12, 78,  3, 56, 89, 23, 67, 34, 91,
+    /* 11 to 20 */  15, 72,  8, 60, 41, 99, 27, 50,  5, 83,
+    /* 21 to 30 */  38, 64, 19, 76, 30, 55, 55, -7,  0, 42,
+    /* 31 to 40 */  42, 18, -15, 70, 9, 88, -3, 61, 25, 25,
+    /* 41 to 50 */ 100, -20, 47, 13, 36, 2, 95, -1, 58, 74
+};
+
+void initHeap(ListHeap *H) {
+    H->lastNdx = -1;
+    for(int i = 0; i < MAX; ++i){
+        H->Elem[i] = 0;
+    }
+}
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int isEmpty(ListHeap H) {
+    if(H.lastNdx == -1){
+        return 1;
+    }
+    return 0;
+}
+
+int isFull(ListHeap H) {
+    if(H.lastNdx == (MAX - 1)){
+        return 1;
+    }
+    return 0;
+}
+
+void insert(ListHeap *H, int x) {
+    if(isFull(*H)){
+        printf("Heap is full: %d not inserted\n", x);
+        return;
+    }
+    H->lastNdx++;
+    H->Elem[H->lastNdx] = x;
+    
+    int i = H->lastNdx;
+    while(i >= 0 && H->Elem[(i - 1) / 2] < H->Elem[i]){
+        swap(&(H->Elem[i]), &(H->Elem[(i - 1) / 2]));
+        i = (i - 1) / 2;
+    }
+}
+
+void maxHeapify(ListHeap *H, int ndx) {
+    //look for left child = 2i+1
+    //look for right child = 2i+2
+    //swap element with its larger child until it is bigger than both children
+ 
+    int largest = ndx;
+    int left = 2 * ndx + 1;
+    int right = 2 * ndx + 2;
+    
+    if(left <= H->lastNdx && H->Elem[left] > H->Elem[largest]){
+        largest = left;
+    }
+    
+    if(right <= H->lastNdx && H->Elem[right] > H->Elem[largest]){
+        largest = right;
+    }
+    
+    if(largest != ndx){
+        swap(&(H->Elem[ndx]) , &(H->Elem[largest]));
+        maxHeapify(H, largest);
+    }
+}
+
+int deleteMax(ListHeap *H) {
+    //move the last element to the root, shrink the heap, call maxHeapify(H, 0) then print Deleted: <value>
+    //if heap is empty, print Heap is empty
+    
+    if(isEmpty(*H)){
+        printf("Heap is empty\n");
+        return 0;
+    }
+    
+    int val = H->Elem[0];
+    H->Elem[0] = H->Elem[H->lastNdx];
+    H->lastNdx--;
+    maxHeapify(H, 0);
+    printf("Deleted: %d\n", val);
+    return val;
+}
+
+/* ============================================================================
+   POPULATE FUNCTION
+   order 0 = all records in sequence (1st to 50th)
+   order 1 = odd records  (1st, 3rd, 5th ...)
+   order 2 = even records (2nd, 4th, 6th ...)
+   order 3 = 1st half     (1st to 25th)
+   order 4 = 2nd half     (26th to 50th)
+   ============================================================================ */
+void populateData(ListHeap *H, int count, int order) {
+    int start = 0, end = 50, step = 1, loaded = 0, i;
+
+    if (order == 1)      { start = 0;  step = 2; }
+    else if (order == 2) { start = 1;  step = 2; }
+    else if (order == 3) { start = 0;  end = 25; }
+    else if (order == 4) { start = 25; end = 50; }
+
+    for (i = start; i < end && loaded < count; i += step) {
+        insert(H, MASTER_DATA[i]);
+        loaded++;
+    }
+}
+
+void display(ListHeap H, char label[]) {
+    int i;
+    printf("%s:", label);
+    if (isEmpty(H)) { printf(" (empty)\n"); return; }
+    for (i = 0; i <= H.lastNdx; i++) printf(" %d", H.Elem[i]);
+    printf("\n");
+}
+int main() {
+    ListHeap H;
+    int count, order, del, i;
+    initHeap(&H);
+
+    printf("Enter number of data to insert and sequence: ");
+    scanf("%d %d", &count, &order);
+    printf("Enter number of data to delete: ");
+    scanf("%d", &del);
+
+    populateData(&H, count, order);
+    display(H, "Initial Heap");
+
+    for (i = 0; i < del; i++) deleteMax(&H);
+    display(H, "Final Heap");
+    printf("Size: %d\n", H.lastNdx + 1);
+    return 0;
+}
